@@ -1,0 +1,62 @@
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# Dependency directories
+Pipfile.lock
+Pipfile
+poetry.lock
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# IDE or editor-specific files
+.idea/
+.vscode/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Test results
+nosetests.xml
+coverage.xml
+*.cover
+*.hypothesis/
+.pytest_cache/
+
+# MacOS specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
+
+# PyCharm specific files
+*.iml
+.idea/
+
+# dotenv files (if using environment variables in .env)
+.env
+
+# JetBrains IDE files
+.idea/
+
+# Docker
+docker-compose.override.yml
+*.dockerfile
+
+# Kubernetes config files
+.kube/
+
+# Secrets
+*.key
+*.pem
