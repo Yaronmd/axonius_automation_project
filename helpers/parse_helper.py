@@ -51,8 +51,8 @@ def parse_places(title_items,subtitle_items,price_items,rating_items):
     places = {}
     for i,title in enumerate(title_items):
         subtitle = subtitle_items[i] if i < len(subtitle_items) else "N/A"
-        price = price_items[i] if i < len(price_items) else "N/A"
-        rating = rating_items[i] if i < len(rating_items) else "N/A"
+        price = price_items[i] if i < len(price_items) else "0"
+        rating = rating_items[i] if i < len(rating_items) else "0.0"
         
         places[i] = {
         'title': title[0],
@@ -69,12 +69,19 @@ def get_highest_rated_and_chepest(places:dict):
     
     for place in places.values():
 
-        if place["price"] != "N/A":
-            price = place["price"].replace('₪', '').replace('$', '').replace('€','').replace(',', '')
+        
+        price = place["price"].replace('₪', '').replace('$', '').replace('€','').replace(',', '')
+        try:
             place['price'] = int(price)
-        if place['rating'] != "N/A":    
+        except ValueError:
+            place['price'] = 0  # In case of invalid price, default to 0
+    
+    
+        try:
             place['rating'] = float(place['rating'])
-            
+        except ValueError:
+            place['rating'] = 0.0 
+       
             
     highest_rated = max(places, key=lambda x: places[x]['rating'])
     logger.info(f"highest rated:{places[highest_rated]}")

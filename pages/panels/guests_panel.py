@@ -69,7 +69,7 @@ class GuestsPanel(BasePage):
     
     def get_children_value(self):
         logger.info("Get children value")
-        return self.get_element_text(self.__get_value_path_by_type(CHILDREN))
+        return self.get_element_text(self.page.locator(self.__get_value_path_by_type(CHILDREN)))
     
     
     def set_guests(self, adults: Optional[int] = None, children: Optional[int] = None, infants: Optional[int] = None):
