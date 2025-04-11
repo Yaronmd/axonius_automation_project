@@ -53,7 +53,7 @@ class GuestsPanel(BasePage):
     
     def get_adult_value(self):
         logger.info("Get adult value")
-        return self.get_element_text(self.__get_value_path_by_type(ADULT))
+        return self.get_element_text(self.page.locator(self.__get_value_path_by_type(ADULT)))
     
     # childrens
     def increase_children(self):
