@@ -22,10 +22,9 @@ class GuestsPanel(BasePage):
         labels_and_hints = dict(zip(self.labels, self.hints))
         for key,value in labels_and_hints.items():
             if not self.get_element_text(self.page.locator(f"xpath=(//h3[.='{key.capitalize()}']//ancestor::div//*[.='{value}'])[1]")):
-                logger.info(f"Failed to validate: '{key}' and hint: '{value}'")    
-                return False
+                logger.error(f"Failed to validate: '{key}' and hint: '{value}'")    
+                assert False
             logger.info(f"Success validate: '{key}' and hint: '{value}'")     
-        return True
         
         
         

@@ -1,10 +1,11 @@
 
 from datetime import datetime
+from urllib.parse import urljoin
 from helpers.logger import logger
 import re
 def extract_total_price(price_text: str):
         """Extract the total price from the price text (e.g., '₪4,095 total' -> '₪4,095')."""
-        match = re.search(r'₪[\d,]+', price_text)
+        match = re.search(r'[₪$€][\d,]+', price_text)
         if match:
             return match.group(0)
         return "N/A"
@@ -43,21 +44,28 @@ def format_dates(start_date: datetime, end_date: datetime) -> str:
     
     return formatted_dates
 
-    
-    
+def parse_number_of_guests(guest_str:str):
+    match = re.search(r'[\d,]+', guest_str)
+    if match:
+        return match.group(0)
+    return "N/A"
+        
 
-def parse_places(title_items,subtitle_items,price_items,rating_items):
+
+def parse_places(title_items,subtitle_items,price_items,price_items_per_night,rating_items):
     
     places = {}
     for i,title in enumerate(title_items):
         subtitle = subtitle_items[i] if i < len(subtitle_items) else "N/A"
         price = price_items[i] if i < len(price_items) else "0"
+        price_per_night = price_items_per_night[i] if i < len(price_items) else "0"
         rating = rating_items[i] if i < len(rating_items) else "0.0"
         
         places[i] = {
         'title': title[0],
         'subtitle': subtitle[0],
         'price': extract_total_price(price[0]),
+        'price_per_night':price_per_night[0],
         'rating': extract_rating(rating[0])
         }
         logger.info(f"Place {i + 1}: {title}, Rating: {rating}")
@@ -69,7 +77,7 @@ def get_highest_rated_and_chepest(places:dict):
     
     for place in places.values():
 
-        
+        place['real_price'] = place["price"]
         price = place["price"].replace('₪', '').replace('$', '').replace('€','').replace(',', '')
         try:
             place['price'] = int(price)
@@ -91,4 +99,3 @@ def get_highest_rated_and_chepest(places:dict):
     
     return places[highest_rated],places[cheapest]
             
-        

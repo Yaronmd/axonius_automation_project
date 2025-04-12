@@ -2,6 +2,7 @@ import pytest
 from playwright.sync_api import sync_playwright
 
 from pages.main_page import MainPage
+from pages.place_page import PlacePage
 
 
 
@@ -9,7 +10,7 @@ from pages.main_page import MainPage
 def browser(request):
     browser_type = request.param
     with sync_playwright() as playwright:
-        browser = getattr(playwright, browser_type).launch(headless=False, args=["--ignore-certificate-errors"])
+        browser = getattr(playwright, browser_type).launch(headless=False, args=["--ignore-certificate-errors","--start-maximized"])
         yield browser
         browser.close()
 
@@ -27,6 +28,10 @@ def page(context):
     page = context.new_page()
     yield page
     page.close()
+
+@pytest.fixture
+def place_page(page):
+    return PlacePage(page=page)
 
 @pytest.fixture
 def main_page(page):

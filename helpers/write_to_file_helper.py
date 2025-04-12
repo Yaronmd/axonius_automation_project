@@ -15,10 +15,7 @@ def log_results_to_temp_folder(file_name:str,**kwargs):
     # Step 2: Open the file in append mode ('a') so we don't overwrite existing content
     with open(log_file_path, 'a') as log_file:
         # Write the log entry manually
-        log_file.write(f"--- LOG ENTRY ---\n")
-        log_file.write(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        if kwargs.get("highest_rated"):
-            log_file.write(f"Highest Rated: {kwargs["highest_rated"]}\n")
-        if kwargs.get("cheapest_result"):
-            log_file.write(f"Cheapest: {kwargs.get("cheapest_result")}\n")
+        for key, value in kwargs.items():
+            if value:  # If the value is not None or an empty string
+                log_file.write(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: {key.replace('_', ' ').capitalize()}: {value}\n")
         log_file.write(f"-------------------\n")
