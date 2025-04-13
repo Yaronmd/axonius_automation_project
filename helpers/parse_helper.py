@@ -21,6 +21,8 @@ def extract_rating(rating_text: str) -> str:
         return "N/A"  # Return "N/A" if no match is found
 
 def format_dates(start_date: datetime, end_date: datetime) -> str:
+    
+
     """Format start and end dates to 'Month Day – Day' or 'Month Day – Month Day' depending on whether they are in the same month."""
     
     # Format the start date as 'Month Day' (e.g., 'May 23') without leading zeros
@@ -44,6 +46,26 @@ def format_dates(start_date: datetime, end_date: datetime) -> str:
     
     return formatted_dates
 
+def format_date_range(start_date: datetime, end_date: datetime) -> str:
+    """
+    Convert start_date and end_date into a formatted string.
+    
+    If start_date and end_date are in the same month and year, returns:
+       "May 8 – 20, 2025"
+    
+    Otherwise, it returns a full version with both months:
+       "May 8 – June 20, 2025"  (if in the same year)
+       
+    You can adjust the behavior in the else block as needed.
+    """
+    if start_date.year == end_date.year and start_date.month == end_date.month:
+        # Same month and same year, use:
+        return f"{start_date.strftime('%b')} {start_date.day} – {end_date.day}, {start_date.year}"
+    else:
+        # Different month or different year:
+        return f"{start_date.strftime('%b')} {start_date.day} – {end_date.strftime('%b')} {end_date.day}, {end_date.year}"
+
+
 def parse_number_of_guests(guest_str:str):
     match = re.search(r'[\d,]+', guest_str)
     if match:
@@ -58,7 +80,7 @@ def parse_places(title_items,subtitle_items,price_items,price_items_per_night,ra
     for i,title in enumerate(title_items):
         subtitle = subtitle_items[i] if i < len(subtitle_items) else "N/A"
         price = price_items[i] if i < len(price_items) else "0"
-        price_per_night = price_items_per_night[i] if i < len(price_items) else "0"
+        price_per_night = price_items_per_night[i] if i < len(price_items_per_night) else "0"
         rating = rating_items[i] if i < len(rating_items) else "0.0"
         
         places[i] = {

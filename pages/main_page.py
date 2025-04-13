@@ -94,15 +94,13 @@ class MainPage(BasePage):
         
         
     def get_list_of_places(self):
-        
-        
+    
         title_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='listing-card-title']"))
         subtitle_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='listing-card-subtitle']"))
         price_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='price-availability-row']//*[contains(text(),'total')]"),timeout=50000)
-        price_per_night_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='price-availability-row']//*[contains(text(),'per')]"),timeout=50000)
+        price_per_night_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='price-availability-row']//*[contains(text(),'per') or contains(text(),'month')]"),timeout=50000)
         rating_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[contains(text(), 'out of 5 average rating')]"))
-        
-        
+                
         if not title_items or not subtitle_items or not price_items:
             return None
         
@@ -112,8 +110,10 @@ class MainPage(BasePage):
     def select_highest_rated_place(self,place):
         
         path =  f"xpath=(//*[.='{place['title']}']//parent::div//*[contains(text(),'{place['real_price']}')]//ancestor::div[@data-testid='card-container']//a)[1]"
-        self.is_element_visible(self.page.locator(path),timeout=50000)
+        self.is_element_visible(self.page.locator(path),timeout=100000)
         self.navigate_to(self.get_full_url_from_href(self.page.locator(path).get_attribute('href')))
+        # close translation popup
+        self.click_element(self.page.locator("button[aria-label='Close']"))
             
         
 

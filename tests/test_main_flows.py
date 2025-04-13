@@ -23,7 +23,7 @@ def test_number_1(main_page,navigate_to_airbnb_page):
     
     log_results_to_temp_folder(file_name="test_number_1",cheapest_result=chepeast,highest_rated=highest_rated)
 
-def test_number_2(place_page,main_page,navigate_to_airbnb_page):
+def test_number_2(reserve_page,place_page,main_page,navigate_to_airbnb_page):
     
     main_page.set_destination(destination="Tel Aviv-Yafo")
     start_date,end_date = main_page.set_random_checkin_and_checkout_between_current_months()
@@ -46,5 +46,7 @@ def test_number_2(place_page,main_page,navigate_to_airbnb_page):
     main_page.select_highest_rated_place(place=highest_rated)
     place_page.validate_selcted_place(place=highest_rated,start_date=start_date,end_date=end_date,number_of_guests=3)
     place_page.save_resrevtion_to_log()
+    place_page.click_reserve()
+    reserve_page.validate_reseverion_detail(highest_rated,start_date,end_date,number_of_guests=[1,2])
     log_results_to_temp_folder(file_name="test_number_2",cheapest_result=chepeast,highest_rated=highest_rated)
     
