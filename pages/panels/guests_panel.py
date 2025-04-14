@@ -16,6 +16,16 @@ class GuestsPanel(BasePage):
     def __init__(self, page):
         super().__init__(page)
         self.page = page
+        self.count_total_guests = 0
+    
+    def get_count_total_guest(self):
+        return self.count_total_guests
+    
+    def get_count_total_gust_str(self):
+        count =  self.get_count_total_guest()
+        return f"{count} guests" if  self.get_count_total_guest() > 1 else f"{count} guest"
+ 
+        
     
     def validate_labels_and_hints(self):
         logger.info("Validate Guset lables and hints")
@@ -72,17 +82,20 @@ class GuestsPanel(BasePage):
     
     
     def set_guests(self, adults: Optional[int] = None, children: Optional[int] = None, infants: Optional[int] = None):
+        count_total_guests=0
         # Set adults
         if adults and adults >= 1:
             for _ in range(adults):
                 if not self.increase_adult():
                     return False
-        
+                count_total_guests+=1
         # Set children
         if children and children >= 1:
             for _ in range(children):
                 if not self.increase_children():
                     return False
+                count_total_guests+=1
                 
+        self.count_total_guests = count_total_guests
         return True
         

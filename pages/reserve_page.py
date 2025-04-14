@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from helpers.parse_helper import convert_price_to_int, format_date_range
 from pages.base_page import BasePage
 from helpers.logger import logger
@@ -11,7 +12,7 @@ class ReservePage(BasePage):
     __guests_details = "xpath=(//div[.='Trip details']//parent::div//div[2]//div)[2]"
     __price_per_night_path = "pd-title-ACCOMMODATION"
     __total_price_path ="price-item-total"
-    __select_county_code_path = "login-signup-countrycode"
+    __select_county_code_path = "xpath=//*[@data-testid='login-signup-countrycode']//parent::div"
     __phone_input_path = "login-signup-phonenumber"
     
     def __init__(self, page):
@@ -41,13 +42,22 @@ class ReservePage(BasePage):
     
     def validate_reseverion_detail(self,place:dict,start_date:datetime,end_date:datetime,number_of_guests:[int]):
         logger.info("Validate reseverion_details")
+        assert self.get_title() == place["title"]
         # logger.info(format_date_range(start_date,end_date))
         # assert self.get_date_value() == format_date_range(start_date,end_date)
         # assert all(guest in self.get_guest_value() for guest in number_of_guests) if number_of_guests else False
         # assert place["price_per_night"] in self.get_price_per_night_value()
         assert place["price_number"]>= convert_price_to_int(self.get_total_price_value())
     
-    def select_county_code(self,county_code:str):
-        assert self.click_element(self.page.locator(self.__select_county_code_path).get_by_role("option",name="93AF"))
+    def select_county_code(self,county_name:str):
+        with open("helpers/countries_with_codes.json", "r") as f:
+            countries = json.load(f)
+            for country in countries:
+                if country["name"].lower() == county_name.lower():
+                    self.page.locator("select#country").select_option(value=country["value"])
+                    
+    def set_phone_number(self,phone_number:str):
+        logger.info("Setting phone number:'{phone_number}'")
+        assert self.fill_text(self.page.get_by_test_id(self.__phone_input_path),text=phone_number,press_enter=True)
         
             
