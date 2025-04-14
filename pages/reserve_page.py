@@ -73,7 +73,7 @@ class ReservePage(BasePage):
         assert place["price_number"] >= convert_price_to_int(self.get_total_price_value())
     
     def select_country_code(self,counrty_name:str):
-        logger.info(f"Selecting code for{counrty_name}")
+        logger.info(f"Selecting code for: '{counrty_name}'")
         with open("helpers/countries_with_codes.json", "r") as f:
             countries = json.load(f)
             for country in countries:
