@@ -91,8 +91,8 @@ class CheckInOutPanel(BasePage):
         start_date = get_random_start_date_for_two_months()
         end_date = get_random_end_date_for_two_months(start_date)
         
-        logger.info(f"Start Date: {start_date.strftime("%Y-%m-%d")}")
-        logger.info(f"End Date: {end_date.strftime("%Y-%m-%d")}")
+        logger.info(f"Start Date: {start_date.strftime('%Y-%m-%d')}")
+        logger.info(f"End Date: {end_date.strftime('%Y-%m-%d')}")
 
 
         # Select start and end dates

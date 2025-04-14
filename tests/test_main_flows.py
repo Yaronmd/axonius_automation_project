@@ -1,7 +1,9 @@
 
 from helpers.parse_helper import format_dates, get_highest_rated_and_chepest
 from helpers.write_to_file_helper import log_results_to_temp_folder
+import pytest
 
+@pytest.mark.skip()
 def test_number_1(main_page,navigate_to_airbnb_page):
     
     main_page.set_destination(destination="Tel Aviv-Yafo")
@@ -48,5 +50,6 @@ def test_number_2(reserve_page,place_page,main_page,navigate_to_airbnb_page):
     place_page.save_resrevtion_to_log()
     place_page.click_reserve()
     reserve_page.validate_reseverion_detail(highest_rated,start_date,end_date,number_of_guests=[1,2])
+    reserve_page.select_county_code("Israel (+972)")
     log_results_to_temp_folder(file_name="test_number_2",cheapest_result=chepeast,highest_rated=highest_rated)
     

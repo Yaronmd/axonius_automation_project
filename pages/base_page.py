@@ -1,4 +1,5 @@
-from typing import Optional
+import time
+from typing import List, Optional
 from urllib.parse import urljoin
 from playwright.sync_api import Page,Locator,expect
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
@@ -95,21 +96,30 @@ class BasePage:
             logger.error(f"Error getting locator {locator}: {str(e)}")
             return None    
 
-    def get_list_of_all_inner_texts_in_elements(self,locator: Locator,timeout=10000)->Optional[list]:
-        try:
-            locator.first.wait_for(state="visible",timeout=timeout)
-            all_inner_texts = []
-            all_items = locator.all()
-            
-            for item in all_items:
-                all_inner_texts.append(item.all_inner_texts())
-            return all_inner_texts
-        except PlaywrightTimeoutError:
-            logger.error(f"Timeout while waiting for locator '{locator}' to become visible.")
-            return None
-        except Exception as e:
-            logger.error(f"Error getting locator {locator}: {str(e)}")
-            return None
+    def wait_for_all_elements(self,locator, timeout=5000):
+        """
+        Wait until all elements matched by the locator are visible.
+        """
+        start_time = time.time()
+        while (time.time() - start_time) * 1000 < timeout:
+            count = locator.count()
+            if count > 0:
+                # Check if each element is visible.
+                all_visible = True
+                for i in range(count):
+                    try:
+                        if not locator.nth(i).is_visible(timeout=500):  
+                            all_visible = False
+                            break
+                    except TimeoutError:
+                        all_visible = False
+                        break
+                if all_visible:
+                    return locator.all()
+            time.sleep(0.2)
+        raise TimeoutError(f"Not all elements became visible within {timeout} ms.")
+
+
 
     def get_full_url_from_href(self,relative_url):
         """

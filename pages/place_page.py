@@ -48,7 +48,7 @@ class PlacePage(BasePage):
         assert checkin_value.date() == start_date.date()
         assert checkout_value.date() == end_date.date()
         assert number_of_guests == int(parse_number_of_guests(self.get_guest_value()))
-        assert place.get("real_price") == self.get_total_price_value()
+        assert place.get("total_price") == self.get_total_price_value()
     
     def save_resrevtion_to_log(self):
      

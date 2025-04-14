@@ -1,6 +1,7 @@
 import re
 import time
-from helpers.parse_helper import  parse_places
+from playwright.sync_api import Locator
+from helpers.parse_helper import  extract_prices, parse_price
 from pages.base_page import BasePage
 from helpers.logger import logger
 from pages.panels.check_in_out_panel import CheckInOutPanel
@@ -19,7 +20,7 @@ class MainPage(BasePage):
     __url_str = "https://www.airbnb.com/"
     
     
-    __main_path_for_card_container = "//div[@data-testid='card-container']"
+    __main_path_for_card_container = "card-container"
   
   
     __destination_path = "input[data-testid='structured-search-input-field-query']" 
@@ -94,24 +95,34 @@ class MainPage(BasePage):
         
         
     def get_list_of_places(self):
+        places = []
+        locators = self.wait_for_all_elements(locator=self.page.get_by_test_id(self.__main_path_for_card_container))
+        for locator in locators:
+            if isinstance(locator,Locator):                
+                title = locator.get_by_test_id("listing-card-title").text_content()
+                subtitle = locator.get_by_test_id("listing-card-subtitle").first.text_content()
+                prices =  locator.get_by_test_id("price-availability-row").text_content()
+                per_night, total = extract_prices(prices)
+                try:
+                    rating = locator.locator("xpath=//span[contains(text(), 'out of 5 average rating')]").text_content().strip()
+                    rating = float(rating.split()[0])
+                except Exception as e:
+                    rating = 0.0
     
-        title_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='listing-card-title']"))
-        subtitle_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='listing-card-subtitle']"))
-        price_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='price-availability-row']//*[contains(text(),'total')]"),timeout=50000)
-        price_per_night_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='price-availability-row']//*[contains(text(),'per') or contains(text(),'month')]"),timeout=50000)
-        rating_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[contains(text(), 'out of 5 average rating')]"))
+                link = locator.locator("xpath=//a").first.get_attribute("href")
                 
-        if not title_items or not subtitle_items or not price_items:
-            return None
-        
-        return parse_places(title_items=title_items,subtitle_items=subtitle_items,price_items_per_night=price_per_night_items,price_items=price_items,rating_items=rating_items)
+            
+                places.append({"title":title,"subtitle":subtitle,"price_per_night":parse_price(per_night),"total_price":parse_price(total),"rating":rating,"link":self.get_full_url_from_href(link)})
+                
+        logger.info(places)
+        return places
         
         
     def select_highest_rated_place(self,place):
         
-        path =  f"xpath=(//*[.='{place['title']}']//parent::div//*[contains(text(),'{place['real_price']}')]//ancestor::div[@data-testid='card-container']//a)[1]"
-        self.is_element_visible(self.page.locator(path),timeout=100000)
-        self.navigate_to(self.get_full_url_from_href(self.page.locator(path).get_attribute('href')))
+        
+      
+        self.navigate_to(place["link"])
         # close translation popup
         self.click_element(self.page.locator("button[aria-label='Close']"))
             

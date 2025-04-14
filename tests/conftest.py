@@ -11,7 +11,7 @@ from pages.reserve_page import ReservePage
 def browser(request):
     browser_type = request.param
     with sync_playwright() as playwright:
-        browser = getattr(playwright, browser_type).launch(headless=False, args=["--ignore-certificate-errors","--window-size=1920,1040"])
+        browser = getattr(playwright, browser_type).launch(headless=True, args=["--ignore-certificate-errors","--window-size=1920,1040"])
         yield browser
         browser.close()
 

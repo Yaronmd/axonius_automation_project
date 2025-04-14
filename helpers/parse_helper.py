@@ -3,12 +3,42 @@ from datetime import datetime
 from urllib.parse import urljoin
 from helpers.logger import logger
 import re
-def extract_total_price(price_text: str):
+def parse_price(price_text: str):
         """Extract the total price from the price text (e.g., '₪4,095 total' -> '₪4,095')."""
         match = re.search(r'[₪$€][\d,]+', price_text)
         if match:
             return match.group(0)
         return "N/A"
+    
+def convert_price_to_int(price:str): 
+    price = price.replace('₪', '').replace('$', '').replace('€','').replace(',', '')
+    return int(float(price))
+      
+    
+def extract_prices(text: str):
+    """
+    Extracts the "per night" price and the "total" price from the given text.
+    
+    For example, from:
+      "₪363 night₪363 per night · ₪2,180 total₪2,180 totalShow price breakdown"
+    this function returns:
+      per_night: "₪363 per night"
+      total: "₪2,180 total"
+    """
+    # Define a pattern that captures:
+    #   Group 1: a currency symbol (₪, $, or €) followed by digits (with commas allowed) and "per night"
+    #   Group 2: a currency symbol followed by digits (with commas allowed) and "total"
+    pattern = r'([₪$€][\d,]+\s+per\s+night).*?([₪$€][\d,]+\s+total)'
+    
+    # Search for the pattern in the text using re.DOTALL to make sure it spans multiple parts if needed.
+    match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+    
+    if match:
+        per_night = match.group(1).strip()
+        total = match.group(2).strip()
+        return per_night, total
+    else:
+        return None, None
     
 def extract_rating(rating_text: str) -> str:
     """Extract the rating value from a string like '4.89 out of 5 average rating, 88 reviews'."""
@@ -72,52 +102,26 @@ def parse_number_of_guests(guest_str:str):
         return match.group(0)
     return "N/A"
         
-
-
-def parse_places(title_items,subtitle_items,price_items,price_items_per_night,rating_items):
-    
-    places = {}
-    for i,title in enumerate(title_items):
-        subtitle = subtitle_items[i] if i < len(subtitle_items) else "N/A"
-        price = price_items[i] if i < len(price_items) else "0"
-        price_per_night = price_items_per_night[i] if i < len(price_items_per_night) else "0"
-        rating = rating_items[i] if i < len(rating_items) else "0.0"
-        
-        places[i] = {
-        'title': title[0],
-        'subtitle': subtitle[0],
-        'price': extract_total_price(price[0]),
-        'price_per_night':price_per_night[0],
-        'rating': extract_rating(rating[0])
-        }
-        logger.info(f"Place {i + 1}: {title}, Rating: {rating}")
-    logger.info(f"Extract Places:{places}")
-    return places
         
         
-def get_highest_rated_and_chepest(places:dict):
+def get_highest_rated_and_chepest(places:list):
     
-    for place in places.values():
-
-        place['real_price'] = place["price"]
-        price = place["price"].replace('₪', '').replace('$', '').replace('€','').replace(',', '')
-        try:
-            place['price'] = int(price)
-        except ValueError:
-            place['price'] = 0  # In case of invalid price, default to 0
+    for place in places:
+        if place.get("total_price"):
+            price = place["total_price"]
+            price = price.replace('₪', '').replace('$', '').replace('€','').replace(',', '')
+            try:
+                place['price_number'] = int(price)
+            except ValueError:
+               continue # In case of invalid price, default to 0
     
-    
-        try:
-            place['rating'] = float(place['rating'])
-        except ValueError:
-            place['rating'] = 0.0 
        
             
-    highest_rated = max(places, key=lambda x: places[x]['rating'])
-    logger.info(f"highest rated:{places[highest_rated]}")
+    highest_rated = max(places, key=lambda x: x.get('rating', 0))
+    logger.info(f"Highest rated: {highest_rated}")
     
-    cheapest = min(places, key=lambda x: places[x]['price'])
-    logger.info(f"cheapest:{places[cheapest]}")
+    cheapest = min(places, key=lambda x: x.get('price_number'))
+    logger.info(f"Cheapest: {cheapest}")
     
-    return places[highest_rated],places[cheapest]
+    return highest_rated,cheapest
             

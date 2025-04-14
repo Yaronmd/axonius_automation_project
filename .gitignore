@@ -50,9 +50,6 @@ Thumbs.db
 # JetBrains IDE files
 .idea/
 
-# Docker
-docker-compose.override.yml
-*.dockerfile
 
 # Kubernetes config files
 .kube/
