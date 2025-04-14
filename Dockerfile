@@ -18,5 +18,5 @@ RUN pip install --upgrade pip && \
 # Copy project
 COPY . .
 
-# Default command to run tests
-CMD ["pytest", "-s"]
+# command to run tests
+CMD ["pytest", "-s","--reruns","2","--reruns-delay","1"]
