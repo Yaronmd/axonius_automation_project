@@ -15,7 +15,7 @@ RUN pip install --upgrade pip && \
     pip install playwright && \
     playwright install --with-deps
 
-# Copy the rest of the project
+# Copy project
 COPY . .
 
 # Default command to run tests
