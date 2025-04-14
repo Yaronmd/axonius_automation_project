@@ -12,17 +12,18 @@ from typing import Optional
 def handle_new_window_popup(popup):
     """Handles the newly opened popup (window)."""
     print(f"New window title: {popup.title()}")
-    popup.wait_for_load_state('domcontentloaded')  # Wait for the new window to load
+    popup.wait_for_load_state('domcontentloaded')
     print(f"New window URL: {popup.url()}")
     
 class MainPage(BasePage):
+    """
+    Page object representing the main page of Airbnb.
+    Provides methods to interact with the search form, guest panel,
+    check-in/out panel, filter panel, and list of places.
+    """
     
     __url_str = "https://www.airbnb.com/"
-    
-    
     __main_path_for_card_container = "card-container"
-  
-  
     __destination_path = "input[data-testid='structured-search-input-field-query']" 
     __guest_path = "div[data-testid='structured-search-input-field-guests-button']"
     __search_button_path = "button[data-testid='structured-search-input-search-button']"
@@ -61,6 +62,7 @@ class MainPage(BasePage):
             assert False
     
     def set_guests(self,adults:Optional[int]=None,children:Optional[int]=None):
+        logger.info("Setting guests")
         assert self.guest_panel.set_guests(adults=adults,children=children)
     
     def click_search_button(self):
@@ -71,12 +73,16 @@ class MainPage(BasePage):
             self.filter_panel = FilterPanel(page=self.page)
         else:
             assert False
-        
+            
+    # --- funcations for Validation for the serach bar ----    
     def validate_selected_location(self,location:str):
         logger.info(f"Validate loction:{location} selected")
         assert self.is_element_visible(self.page.locator(f"{self.__selected_location_path}//div[.='{location}']"))
     
     def get_selected_checkin_out(self):
+        """
+        Retrieve the checkin/out value from the top sarchbar page.
+        """
         logger.info("Getting select checkout checkin...")
         text =  self.get_element_text(self.page.locator(self.__selected_check_in_out_path))
         if not text:
@@ -86,8 +92,10 @@ class MainPage(BasePage):
         logger.info(f"gett: {text}")
         return text
             
-    
     def get_number_of_selected_guests(self):
+        """
+        Retrieve the number of guests selected from the top sarchbar page.
+        """
         text =  self.get_element_text(self.page.locator(self.__selected_guest_path))
         if not text:
             return False
@@ -95,6 +103,9 @@ class MainPage(BasePage):
         
         
     def get_list_of_places(self):
+        """
+        Retrieve and parse a list of places from the search results.
+        """
         places = []
         locators = self.wait_for_all_elements(locator=self.page.get_by_test_id(self.__main_path_for_card_container))
         for locator in locators:
@@ -118,10 +129,10 @@ class MainPage(BasePage):
         return places
         
         
-    def select_highest_rated_place(self,place):
-        
-        
-      
+    def select_place(self,place):
+        """
+        Select a place by navigating to its details page and dismissing any translation pop-up.
+        """
         self.navigate_to(place["link"])
         # close translation popup
         self.click_element(self.page.locator("button[aria-label='Close']"))

@@ -1,5 +1,5 @@
 import time
-from typing import List, Optional
+from typing import Optional
 from urllib.parse import urljoin
 from playwright.sync_api import Page,Locator,expect
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
@@ -126,24 +126,22 @@ class BasePage:
         This function combines the base URL of the current page with the relative URL
         to form a complete URL.
         """
+        logger.info("convert url")
         current_url = self.page.url  # Get the current page's URL
-        logger.info(current_url)
-        full_url = urljoin(current_url, relative_url)  # Combine with the relative URL
+        logger.info(f"before:{current_url}")
+        full_url = urljoin(current_url, relative_url) 
+        
+        # Combine with the relative URL
         return full_url   
     
     def dismiss_popup(self, trigger_text: str):
         """
         Click the trigger to open the popup and then click the dismiss button inside the popup.
-        
-        Args:
-            trigger_text (str): The text on the element that triggers the popup.        
-   
         """
         logger.info("dismiss_popup")
-        # Start waiting for popup before clicking.
         with self.page.expect_popup() as popup_info:
             logger.info(f"popup info:{popup_info.value}")
-            self.page.get_by_text(trigger_text).click()  # Click the trigger that opens the popup
+            self.page.get_by_text(trigger_text).click() 
         popup = popup_info.value
         logger.info(f"popup:{popup}")
         popup.wait_for_load_state("domcontentloaded")

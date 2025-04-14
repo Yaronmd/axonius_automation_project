@@ -14,7 +14,7 @@ class PlacePage(BasePage):
     __checkout_path_str = "div[data-testid='change-dates-checkOut']"
     __guest_path_str = "#GuestPicker-book_it-trigger"
     __price_per_night_str = "xpath=(//*[.='night']//parent::div//span)[3]"
-    __total_price_str = "xpath=(//*[.='Total' or .='total']//parent::span//parent::div//span)[2]"
+    __total_price_str = "xpath=(//*[.='Total']//parent::span//parent::div//span)[2]"
     
     def __init__(self, page):
         super().__init__(page)
