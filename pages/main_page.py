@@ -106,6 +106,7 @@ class MainPage(BasePage):
         """
         Retrieve and parse a list of places from the search results.
         """
+        logger.info("Getting list of places...")
         places = []
         locators = self.wait_for_all_elements(locator=self.page.get_by_test_id(self.__main_path_for_card_container))
         for locator in locators:
@@ -121,7 +122,6 @@ class MainPage(BasePage):
                     rating = 0.0
     
                 link = locator.locator("xpath=//a").first.get_attribute("href")
-                
             
                 places.append({"title":title,"subtitle":subtitle,"price_per_night":parse_price(per_night),"total_price":parse_price(total),"rating":rating,"link":self.get_full_url_from_href(link)})
                 
