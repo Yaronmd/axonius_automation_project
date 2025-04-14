@@ -5,7 +5,9 @@ from pages.base_page import BasePage
 from helpers.logger import logger
 
 class ReservePage(BasePage):
-    
+    """
+    Represents the reservation page functionalities for the Airbnb automation test suite.
+    """
   
     __title_path_str = "checkout-product-details-listing-card"
     __title_path_str_2 = "#LISTING_CARD-title"
@@ -48,6 +50,11 @@ class ReservePage(BasePage):
     
     
     def validate_reseverion_detail(self,place:dict,start_date:datetime,end_date:datetime,number_of_guests:[int]):
+        """
+        Validate the reservation details on the page against expected values.
+
+        Currently, the method asserts that the total price displayed on the page matches the expected value.
+        """
         logger.info("Validate reseverion_details")
         # date_value = self.get_date_value()
         # if date_value:

@@ -50,11 +50,13 @@ def get_random_end_date_for_two_months(start_date: datetime) -> datetime:
 
 
 class CheckInOutPanel(BasePage):
+    """
+    Represents the checkin checkout  selection panel for the Airbnb automation test suite.
+    """
+    __next_month_button_path = "button[aria-label='Move forward to switch to the next month.']"
     
-    next_month_button_path = "button[aria-label='Move forward to switch to the next month.']"
-    
-    current_month_title_path = "xpath=(//*[@data-testid='structured-search-input-field-dates-panel']//h2)[1]"
-    next_month_title_path = "xpath=(//*[@data-testid='structured-search-input-field-dates-panel']//h2)[2]"
+    __current_month_title_path = "xpath=(//*[@data-testid='structured-search-input-field-dates-panel']//h2)[1]"
+    __next_month_title_path = "xpath=(//*[@data-testid='structured-search-input-field-dates-panel']//h2)[2]"
     
     
     def __init__(self, page):
@@ -63,19 +65,19 @@ class CheckInOutPanel(BasePage):
     
     def get_current_displayed_month(self) -> str:
         """Get the current displayed month (e.g., 'April 2025')."""
-        month_locator = self.page.locator(self.current_month_title_path)
+        month_locator = self.page.locator(self.__current_month_title_path)
         current_month = month_locator.text_content().strip()
         return current_month
     
     def get_next_displayed_month(self) -> str:
         """Get the next displayed month (e.g., 'May 2025')."""
-        month_locator = self.page.locator(self.next_month_title_path)
+        month_locator = self.page.locator(self.__next_month_title_path)
         next_month = month_locator.text_content().strip()
         return next_month
     
     def click_next_month_button(self):
         """Click the 'Next' button to move to the next month on the calendar."""
-        next_button = self.page.locator(self.next_month_button_path)
+        next_button = self.page.locator(self.__next_month_button_path)
         if not self.click_element(next_button):
             return False
             
