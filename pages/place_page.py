@@ -15,6 +15,7 @@ class PlacePage(BasePage):
     __guest_path_str = "#GuestPicker-book_it-trigger"
     __price_per_night_str = "xpath=(//*[.='night']//parent::div//span)[3]"
     __total_price_str = "xpath=(//*[.='Total']//parent::span//parent::div//span)[2]"
+    __total_price_2_str = "xpath=(//*[contains(text(),'Non-refundable')]//text())[3]"
     
     def __init__(self, page):
         super().__init__(page)
@@ -22,6 +23,7 @@ class PlacePage(BasePage):
    
     
     def click_reserve(self):
+        logger.info("Click Reserve")
         assert self.click_element(self.page.locator(self.__reserve_button_path_str))
     
     def get_title(self):
@@ -35,7 +37,15 @@ class PlacePage(BasePage):
         return self.get_element_text(self.page.locator(self.__guest_path_str))
     
     def get_total_price_value(self):
-        return self.get_element_text(self.page.locator(self.__total_price_str),timeout=50000)
+        total_price =  self.get_element_text(self.page.locator(self.__total_price_str),timeout=50000)
+        if not total_price:
+          total_price =  self.get_element_text(self.page.locator(self.__total_price_2_str),timeout=50000)
+          if total_price:
+              return total_price.split(" ")[0]
+        return total_price
+      
+            
+        
     
     def get_price_per_night_value(self):
         return self.get_element_text(self.page.locator(self.__price_per_night_str))
@@ -50,9 +60,9 @@ class PlacePage(BasePage):
         assert number_of_guests == int(parse_number_of_guests(self.get_guest_value()))
         assert place.get("total_price") == self.get_total_price_value()
     
-    def save_resrevtion_to_log(self):
-     
-        log_results_to_temp_folder(file_name="reserve_detail",titile=self.get_title(),checkin=self.get_checkin_value(),checkout=self.get_checkout_value(),price_per_night=self.get_price_per_night_value(),total_price=self.get_total_price_value())
+    def save_resrevtion_to_log(self,file_name:str="reserve_detail"):
+        logger.info("Save resevation to log file")
+        log_results_to_temp_folder(file_name=file_name,titile=self.get_title(),checkin=self.get_checkin_value(),checkout=self.get_checkout_value(),price_per_night=self.get_price_per_night_value(),total_price=self.get_total_price_value())
         
         
         

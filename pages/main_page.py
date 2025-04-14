@@ -89,7 +89,7 @@ class MainPage(BasePage):
             return False
         if '\u2009' in text:
             text = text.replace('\u2009',' ')
-        logger.info(f"gett: {text}")
+        logger.info(f"get selected checkin/out : {text}")
         return text
             
     def get_number_of_selected_guests(self):
@@ -99,13 +99,16 @@ class MainPage(BasePage):
         text =  self.get_element_text(self.page.locator(self.__selected_guest_path))
         if not text:
             return False
-        return text.replace('\xa0', ' ')
+        text = text.replace('\xa0', ' ')
+        logger.info(f"get selected_guests : {text}")
+        return text
         
         
     def get_list_of_places(self):
         """
         Retrieve and parse a list of places from the search results.
         """
+        logger.info("Getting list of places...")
         places = []
         locators = self.wait_for_all_elements(locator=self.page.get_by_test_id(self.__main_path_for_card_container))
         for locator in locators:
@@ -121,7 +124,6 @@ class MainPage(BasePage):
                     rating = 0.0
     
                 link = locator.locator("xpath=//a").first.get_attribute("href")
-                
             
                 places.append({"title":title,"subtitle":subtitle,"price_per_night":parse_price(per_night),"total_price":parse_price(total),"rating":rating,"link":self.get_full_url_from_href(link)})
                 

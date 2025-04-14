@@ -54,7 +54,10 @@
 ```bash
 pytest -s
 ```
-
+- **can use flaky to rerun if failed** 
+```bash
+pytest -s --reruns 2 --reruns-delay 1
+```
 ## Running Tests with Docker
 
 ### IMPORTANT: When running in Docker, make sure to enable headless mode:

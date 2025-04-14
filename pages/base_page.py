@@ -128,7 +128,6 @@ class BasePage:
         """
         logger.info("convert url")
         current_url = self.page.url  # Get the current page's URL
-        logger.info(f"before:{current_url}")
         full_url = urljoin(current_url, relative_url) 
         
         # Combine with the relative URL
