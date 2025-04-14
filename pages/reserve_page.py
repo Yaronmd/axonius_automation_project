@@ -57,7 +57,7 @@ class ReservePage(BasePage):
         #     else:
         #         assert format_date_range(start,end,get_year=False)  == format_date_range(start_date,end_date,get_year=False)
             
-        assert self.get_title() == place["subtitle"]
+        assert self.get_title().strip() == place["subtitle"].strip()
         # logger.info(format_date_range(start_date,end_date))
         # assert self.get_date_value() == format_date_range(start_date,end_date)
         # assert all(guest in self.get_guest_value() for guest in number_of_guests) if number_of_guests else False

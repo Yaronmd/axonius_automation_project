@@ -89,7 +89,7 @@ class MainPage(BasePage):
             return False
         if '\u2009' in text:
             text = text.replace('\u2009',' ')
-        logger.info(f"gett: {text}")
+        logger.info(f"get selected checkin/out : {text}")
         return text
             
     def get_number_of_selected_guests(self):
@@ -99,7 +99,9 @@ class MainPage(BasePage):
         text =  self.get_element_text(self.page.locator(self.__selected_guest_path))
         if not text:
             return False
-        return text.replace('\xa0', ' ')
+        text = text.replace('\xa0', ' ')
+        logger.info(f"get selected_guests : {text}")
+        return text
         
         
     def get_list_of_places(self):
