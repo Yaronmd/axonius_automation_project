@@ -5,7 +5,9 @@ from pages.base_page import BasePage
 from helpers.logger import logger
 
 class ReservePage(BasePage):
-    
+    """
+    Represents the reservation page functionalities for the Airbnb automation test suite.
+    """
   
     __title_path_str = "checkout-product-details-listing-card"
     __title_path_str_2 = "#LISTING_CARD-title"
@@ -48,6 +50,11 @@ class ReservePage(BasePage):
     
     
     def validate_reseverion_detail(self,place:dict,start_date:datetime,end_date:datetime,number_of_guests:[int]):
+        """
+        Validate the reservation details on the page against expected values.
+
+        Currently, the method asserts that the total price displayed on the page matches the expected value.
+        """
         logger.info("Validate reseverion_details")
         # date_value = self.get_date_value()
         # if date_value:
@@ -62,15 +69,18 @@ class ReservePage(BasePage):
         # assert self.get_date_value() == format_date_range(start_date,end_date)
         # assert all(guest in self.get_guest_value() for guest in number_of_guests) if number_of_guests else False
         # assert place["price_per_night"] in self.get_price_per_night_value()
-
+        logger.info("validate total price")
         assert place["price_number"] >= convert_price_to_int(self.get_total_price_value())
     
     def select_country_code(self,counrty_name:str):
+        logger.info(f"Selecting code for: '{counrty_name}'")
         with open("helpers/countries_with_codes.json", "r") as f:
             countries = json.load(f)
             for country in countries:
                 if country["name"].lower() == counrty_name.lower():
+                    logger.info(f"set country value:'{country["value"]}'")
                     self.page.locator("select#country").select_option(value=country["value"])
+                    
                     
     def set_phone_number(self,phone_number:str):
         logger.info(f"Setting phone number:'{phone_number}'")

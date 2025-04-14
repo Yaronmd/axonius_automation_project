@@ -9,7 +9,9 @@ INFANTS="infants"
 PETS = "pets"
 
 class GuestsPanel(BasePage):
-    
+    """
+    Represents the guests selection panel for the Airbnb automation test suite.
+    """
     labels = (ADULT,CHILDREN,INFANTS,PETS)
     hints = ("Ages 13 or above","Ages 2 – 12","Under 2","Bringing a service animal?")
     
@@ -28,7 +30,7 @@ class GuestsPanel(BasePage):
         
     
     def validate_labels_and_hints(self):
-        logger.info("Validate Guset lables and hints")
+        logger.info("Validate Guset panel lables and hints")
         labels_and_hints = dict(zip(self.labels, self.hints))
         for key,value in labels_and_hints.items():
             if not self.get_element_text(self.page.locator(f"xpath=(//h3[.='{key.capitalize()}']//ancestor::div//*[.='{value}'])[1]")):
@@ -82,6 +84,12 @@ class GuestsPanel(BasePage):
     
     
     def set_guests(self, adults: Optional[int] = None, children: Optional[int] = None, infants: Optional[int] = None):
+        """
+        Set the number of guests by incrementing the counts for adults and children.
+        
+        Currently, the method does not handle the setting of infants.
+        
+        """
         count_total_guests=0
         # Set adults
         if adults and adults >= 1:
