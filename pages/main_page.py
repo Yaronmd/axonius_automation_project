@@ -1,6 +1,7 @@
 import re
 import time
-from helpers.parse_helper import  parse_places
+from playwright.sync_api import Locator
+from helpers.parse_helper import  extract_prices, parse_price
 from pages.base_page import BasePage
 from helpers.logger import logger
 from pages.panels.check_in_out_panel import CheckInOutPanel
@@ -11,17 +12,18 @@ from typing import Optional
 def handle_new_window_popup(popup):
     """Handles the newly opened popup (window)."""
     print(f"New window title: {popup.title()}")
-    popup.wait_for_load_state('domcontentloaded')  # Wait for the new window to load
+    popup.wait_for_load_state('domcontentloaded')
     print(f"New window URL: {popup.url()}")
     
 class MainPage(BasePage):
+    """
+    Page object representing the main page of Airbnb.
+    Provides methods to interact with the search form, guest panel,
+    check-in/out panel, filter panel, and list of places.
+    """
     
     __url_str = "https://www.airbnb.com/"
-    
-    
-    __main_path_for_card_container = "//div[@data-testid='card-container']"
-  
-  
+    __main_path_for_card_container = "card-container"
     __destination_path = "input[data-testid='structured-search-input-field-query']" 
     __guest_path = "div[data-testid='structured-search-input-field-guests-button']"
     __search_button_path = "button[data-testid='structured-search-input-search-button']"
@@ -60,6 +62,7 @@ class MainPage(BasePage):
             assert False
     
     def set_guests(self,adults:Optional[int]=None,children:Optional[int]=None):
+        logger.info("Setting guests")
         assert self.guest_panel.set_guests(adults=adults,children=children)
     
     def click_search_button(self):
@@ -70,12 +73,16 @@ class MainPage(BasePage):
             self.filter_panel = FilterPanel(page=self.page)
         else:
             assert False
-        
+            
+    # --- funcations for Validation for the serach bar ----    
     def validate_selected_location(self,location:str):
         logger.info(f"Validate loction:{location} selected")
         assert self.is_element_visible(self.page.locator(f"{self.__selected_location_path}//div[.='{location}']"))
     
     def get_selected_checkin_out(self):
+        """
+        Retrieve the checkin/out value from the top sarchbar page.
+        """
         logger.info("Getting select checkout checkin...")
         text =  self.get_element_text(self.page.locator(self.__selected_check_in_out_path))
         if not text:
@@ -85,8 +92,10 @@ class MainPage(BasePage):
         logger.info(f"gett: {text}")
         return text
             
-    
     def get_number_of_selected_guests(self):
+        """
+        Retrieve the number of guests selected from the top sarchbar page.
+        """
         text =  self.get_element_text(self.page.locator(self.__selected_guest_path))
         if not text:
             return False
@@ -94,26 +103,39 @@ class MainPage(BasePage):
         
         
     def get_list_of_places(self):
+        """
+        Retrieve and parse a list of places from the search results.
+        """
+        places = []
+        locators = self.wait_for_all_elements(locator=self.page.get_by_test_id(self.__main_path_for_card_container))
+        for locator in locators:
+            if isinstance(locator,Locator):                
+                title = locator.get_by_test_id("listing-card-title").text_content()
+                subtitle = locator.get_by_test_id("listing-card-subtitle").first.text_content()
+                prices =  locator.get_by_test_id("price-availability-row").text_content()
+                per_night, total = extract_prices(prices)
+                try:
+                    rating = locator.locator("xpath=//span[contains(text(), 'out of 5 average rating')]").text_content().strip()
+                    rating = float(rating.split()[0])
+                except Exception as e:
+                    rating = 0.0
+    
+                link = locator.locator("xpath=//a").first.get_attribute("href")
+                
+            
+                places.append({"title":title,"subtitle":subtitle,"price_per_night":parse_price(per_night),"total_price":parse_price(total),"rating":rating,"link":self.get_full_url_from_href(link)})
+                
+        logger.info(places)
+        return places
         
         
-        title_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='listing-card-title']"))
-        subtitle_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='listing-card-subtitle']"))
-        price_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='price-availability-row']//*[contains(text(),'total')]"),timeout=50000)
-        price_per_night_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[@data-testid='price-availability-row']//*[contains(text(),'per')]"),timeout=50000)
-        rating_items = self.get_list_of_all_inner_texts_in_elements(locator=self.page.locator(f"xpath={self.__main_path_for_card_container}//*[contains(text(), 'out of 5 average rating')]"))
-        
-        
-        if not title_items or not subtitle_items or not price_items:
-            return None
-        
-        return parse_places(title_items=title_items,subtitle_items=subtitle_items,price_items_per_night=price_per_night_items,price_items=price_items,rating_items=rating_items)
-        
-        
-    def select_highest_rated_place(self,place):
-        
-        path =  f"xpath=(//*[.='{place['title']}']//parent::div//*[contains(text(),'{place['real_price']}')]//ancestor::div[@data-testid='card-container']//a)[1]"
-        self.is_element_visible(self.page.locator(path),timeout=50000)
-        self.navigate_to(self.get_full_url_from_href(self.page.locator(path).get_attribute('href')))
+    def select_place(self,place):
+        """
+        Select a place by navigating to its details page and dismissing any translation pop-up.
+        """
+        self.navigate_to(place["link"])
+        # close translation popup
+        self.click_element(self.page.locator("button[aria-label='Close']"))
             
         
 
