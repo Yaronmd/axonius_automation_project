@@ -46,8 +46,6 @@ def extract_rating(rating_text: str) -> str:
         return "N/A"
 
 def format_dates(start_date: datetime, end_date: datetime) -> str:
-    
-
     """Format start and end dates to 'Month Day – Day' or 'Month Day – Month Day' depending on whether they are in the same month."""
     
     # Format the start date as 'Month Day' (e.g., 'May 23') without leading zeros

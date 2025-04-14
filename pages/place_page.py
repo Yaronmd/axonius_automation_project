@@ -23,6 +23,7 @@ class PlacePage(BasePage):
    
     
     def click_reserve(self):
+        logger.info("Click Reserve")
         assert self.click_element(self.page.locator(self.__reserve_button_path_str))
     
     def get_title(self):

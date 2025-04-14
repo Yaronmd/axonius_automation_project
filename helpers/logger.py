@@ -10,5 +10,4 @@ logging.basicConfig(
     ]
 )
 
-# Create a logger instance
 logger = logging.getLogger()
