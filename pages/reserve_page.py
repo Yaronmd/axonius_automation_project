@@ -62,15 +62,18 @@ class ReservePage(BasePage):
         # assert self.get_date_value() == format_date_range(start_date,end_date)
         # assert all(guest in self.get_guest_value() for guest in number_of_guests) if number_of_guests else False
         # assert place["price_per_night"] in self.get_price_per_night_value()
-
+        logger.info("validate total price")
         assert place["price_number"] >= convert_price_to_int(self.get_total_price_value())
     
     def select_country_code(self,counrty_name:str):
+        logger.info(f"Selecting code for{counrty_name}")
         with open("helpers/countries_with_codes.json", "r") as f:
             countries = json.load(f)
             for country in countries:
                 if country["name"].lower() == counrty_name.lower():
+                    logger.info(f"set country value:'{country["value"]}'")
                     self.page.locator("select#country").select_option(value=country["value"])
+                    
                     
     def set_phone_number(self,phone_number:str):
         logger.info(f"Setting phone number:'{phone_number}'")
